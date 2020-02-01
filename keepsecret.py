@@ -7,35 +7,46 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 import base64
 
+def cat_bytes(secret_file):
+    with open(secret_file, 'rb') as f:
+        data = f.read()
+        f.close()
+    return data
 
-#def build_keeper():
+def write_bytes(secret_file, data):
+    with open(secret_file , 'wb' ) as f:
+        f.write(data)
+        f.close()
 
-"""
-shadow = 'shadow'
-def grep(secrets, key):
-    for key,value in secrets:
-        if key in secrets:
-            print(value)
+def get_key(pw0):
+    pw0_bytes = pw0.encode()
+    salt = b'keepsecret'
+    kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=100000, 
+            backend=default_backend()
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(pw0_bytes))
+    return key
 
-
-def get_secret(shadow, secrets, key):
-    secret_value = None 
-    if check_pw_verbose():
-        secret_value = grep(secrets, key)
-        if value not None:
-            return value
+def open_vault(pw0, secret_file, is_plain):
+    key = get_key(pw0)
+    data = cat_bytes(secret_file)
+    fernet_object = Fernet(key)
+    if is_plain:
+        encrypted = fernet_object.encrypt(data)
+        write_bytes(secret_file, encrypted)
     else:
-        sys.exit()
+        decrypted = fernet_object.decrypt(data)
+        write_bytes(secret_file, decrypted)
 
-def set_secret(shadow, secrets, key, value):
-    if check_pw_verbose():
-        if secrets.get(key, None) is None:
-            secrets[key] = value
-        els            sys.exit()
-        # file system is alredy mounted 
-        # is under a folder on the some dir
-        print(secrets)
-"""
+def encrypt_vault(pw0, secret_file):
+    open_vault(pw0, secret_file, True)
+
+def decrypt_vault(pw0, secret_file):
+    open_vault(pw0, secret_file, False)
 
 
 def check_perm(shadow):
@@ -49,7 +60,7 @@ def check_perm(shadow):
     else:
         return True
 
-def check_pw_verbose(shadow):
+def open_secrets(shadow, secret_file):
     # We should  check mod of Keepsecret shadow file first
     # it must be 0600
     if check_perm(shadow):
@@ -57,19 +68,37 @@ def check_pw_verbose(shadow):
             data = f.read()
             f.close()
         old_hash = data.rstrip()
-        if check_hash(old_hash, crypt.crypt(getpass.getpass('Insert your password to access vault: '), old_hash)):
+        pw0 = getpass.getpass('Insert your password to access the  vault: ')
+        if check_hash(old_hash, crypt.crypt(pw0, old_hash)):
+            decrypt_vault(pw0, secret_file)
             return True
         else:
             return False
     else:
         return False
 
+def close_secrets(shadow, secret_file):
+    # We should  check mod of Keepsecret shadow file first
+    # it must be 0600
+    if check_perm(shadow):
+        with open(shadow, 'r') as f:
+            data = f.read()
+            f.close()
+        old_hash = data.rstrip()
+        pw0 = getpass.getpass('Insert your password to hide your secrets: ')
+        if check_hash(old_hash, crypt.crypt(pw0, old_hash)):
+            encrypt_vault(pw0, secret_file)
+            return True
+        else:
+            return False
+    else:
+        return False
 
 def gen_hash(pw1):
     passwd = crypt.crypt(pw1, crypt.mksalt(crypt.METHOD_SHA512))
     return passwd
 
-def check_pw(shadow, pw0):
+def check_pw(shadow, pw0, secret_file):
     # We should  check mod of Keepsecret shadow file first
     # it must be 0600
     if check_perm(shadow):
@@ -78,17 +107,19 @@ def check_pw(shadow, pw0):
             f.close()
         old_hash = data.rstrip()
         if check_hash(old_hash, crypt.crypt(pw0, old_hash)):
+            decrypt_vault(pw0, secret_file)
             return True
         else:
             return False
     else:
         return False
 
-def insert_pw(shadow, pw1):
+def insert_pw(shadow, pw1, secret_file):
     # Your should check mod of Keepsecret shadow file first
     # It must be 0600
     if check_perm(shadow):
-        hashed = gen_hash(pw1) 
+        hashed = gen_hash(pw1)
+        encrypt_vault(pw1, secret_file)
         with open(shadow, 'w') as f:
             f.write( hashed + '\n')
             f.close()
@@ -96,15 +127,27 @@ def insert_pw(shadow, pw1):
     else:
         return False 
 
-def set_pw(shadow):
-        for count in range(3):
+def new_pw(shadow, secret_file):
+    # Your should check mod of Keepsecret shadow file first
+    # It must be 0600
+    if check_perm(shadow):
+        pw1 = getpass.getpass('Insert your password to generate keepsecret vault: ')
+        hashed = crypt.crypt(pw1, crypt.mksalt(crypt.METHOD_SHA512))
+        encrypt_vault(pw1, secret_file)
+        with open(shadow, 'w') as f:
+            f.write( hashed + '\n')
+            f.close()
+
+
+def set_pw(shadow, secret_file):
+        for i in range(3):
             print('Changing password for Keepsecret: ')
             pw0 = getpass.getpass('(current) Keepsecret password: ')
-            if check_pw(shadow ,pw0):
+            if check_pw(shadow ,pw0, secret_file):
                 pw1 = getpass.getpass('Enter new Keepsecret password: ')
                 pw2 = getpass.getpass('Retype new Keepsecret password: ')
                 if pw1 == pw2:
-                    if insert_pw(shadow, pw1):
+                    if insert_pw(shadow, pw1, secret_file):
                         print('password updated successfully')
                         break
                     else:
