@@ -1,5 +1,6 @@
 import sys, getpass, os , stat, crypt
 from hmac import compare_digest as check_hash
+from time import sleep 
 
 #def build_keeper():
 
@@ -88,8 +89,7 @@ def insert_pw(shadow, pw1):
         return False 
 
 def set_pw(shadow):
-    count = 0
-    while True:
+    for count in range(3):
         print('Changing password for Keepsecret: ')
         pw0 = getpass.getpass('(current) Keepsecret password: ')
         if check_pw(shadow ,pw0):
@@ -104,9 +104,6 @@ def set_pw(shadow):
                     break
             else:
                 print('Password unchanged', file=sys.stderr)
-                count += 1
         else:
             print('Sorry, try again', file=sys.stderr)
-            count += 1
-        if count >= 2: break 
-
+        sleep(2)        
