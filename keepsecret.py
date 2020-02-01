@@ -1,16 +1,14 @@
 import sys, getpass, os , stat, crypt
 from hmac import compare_digest as check_hash
 
-def build_keeper():
+#def build_keeper():
 
 
 # shadow = 'shadow'
-
-def grep(secrets, key):
-    for key,value in secrets:
-        if key in secrets:
-            print(value)
-
+#def grep(secrets, key):
+#    for key,value in secrets:
+#        if key in secrets:
+#            print(value)
 
 def check_perm(shadow):
     mode = os.stat(shadow)
@@ -76,9 +74,6 @@ def check_pw(shadow, pw0):
             return False
     else:
         return False
-
-
-
 
 def insert_pw(shadow, pw1):
     # Your should check mod of Keepsecret shadow file first
