@@ -12,7 +12,7 @@ import getopt
 def check_perm(shadow):
     mode = os.stat(shadow)
     chmod = oct(mode.st_mode)[4:]
-    if chmod != '0600':
+    if chmod != '0660':
         print('Permissions '+ chmod +' for' + shadow + ' are too open.')
         print('It is required that the Keepsecret shadow file are NOT accessible by others')
         print('This file will be ignored')
@@ -68,12 +68,12 @@ def new_pw(shadow, secret_file):
     if check_perm(shadow):
         pw1 = getpass.getpass('Insert your password to generate keepsecret vault: ')
         hashed = crypt.crypt(pw1, crypt.mksalt(crypt.METHOD_SHA512))
-        encrypt_vault(pw1, secret_file)
+        manage_vault(pw1, secret_file, True)
         with open(shadow, 'w') as f:
             f.write( hashed + '\n')
             f.close()
 
-shadow = 'shadow'
+shadow = '/etc/keepsecret/shadow'
 argv = sys.argv[1:]
 try:
     opts, args = getopt.getopt(argv, "n:e:d:", ["new=", "encrypt=", "decrypt"])
