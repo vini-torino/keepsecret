@@ -83,14 +83,11 @@ except getopt.GetoptError as err:
 
 for opt, arg in opts:
     if opt in ['-n', '--new']:
-        #do something
         new_pw(shadow, arg)
         print(f'setting new password for {arg}')
     elif opt in ['-e', '--encrypt' ]:
-        #do something
         manage_secrets(shadow, arg, True)
         print(f'encrypting {arg}')
     elif opt in ['-d', '--decrypt']:
-        #do something
         manage_secrets(shadow, arg, False)
         print(f'decrypting {arg}')
