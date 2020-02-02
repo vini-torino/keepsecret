@@ -5,7 +5,7 @@ keepsecret script is a simple way to encrypted files using shadow like passwords
 Usage:
 
 	keepsecret -n target_file
-		set new shadow password and encrypt target_file.
+		Set new shadow password and encrypt target_file.
 
 	keepsecret -d target_file
 		Decrypt target_file file asking your password.
