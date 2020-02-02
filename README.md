@@ -16,7 +16,7 @@ usage:
 
 Warning:
 
-	Once you encrypt a file, it only possible to retrive using the same password.
+	Once you encrypt a file, it only possible to retrive it using the same password.
 	Take care while changing Keepsecret's password, you could loose data.
 	If you really need to do so, better decrypt all your secret files first,
 	and then encrypted everything again using the new password.

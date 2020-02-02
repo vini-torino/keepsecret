@@ -73,10 +73,26 @@ def new_pw(shadow, secret_file):
             f.write( hashed + '\n')
             f.close()
 
+def get_help():
+    secret_help = """
+usage:
+
+keepsecret [-n][--new] target_file
+	set new shadow password and encrypt target_file.
+
+keepsecret [-d][--decrypted] target_file
+	Decrypt target_file file asking your password.
+
+keepsecret [-e][--encrypted] target_file
+	Encrypt everything all over again.
+"""
+    print(secret_help)
+
+
 shadow = '/etc/keepsecret/shadow'
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, "n:e:d:", ["new=", "encrypt=", "decrypt"])
+    opts, args = getopt.getopt(argv, "n:e:d:h", ["new=", "encrypt=", "decrypt=", "help" ])
 except getopt.GetoptError as err:
     print(err)
     opts = []
@@ -91,3 +107,5 @@ for opt, arg in opts:
     elif opt in ['-d', '--decrypt']:
         manage_secrets(shadow, arg, False)
         print(f'decrypting {arg}')
+    elif opt in ['-h', '--help']:
+        get_help()
