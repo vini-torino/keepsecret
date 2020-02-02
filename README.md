@@ -2,7 +2,7 @@
 
 keepsecret script is a simple way to encrypted files using shadow like passwords
 
-usage:
+Usage:
 
 	keepsecret -n target_file
 		set new shadow password and encrypt target_file.
@@ -20,3 +20,6 @@ Warning:
 	Take care while changing Keepsecret's password, you could loose data.
 	If you really need to do so, better decrypt all your secret files first,
 	and then encrypted everything again using the new password.
+
+	Also, you must be in the keepsecret group in order to use this utility.
+	Please, read setup.sh for more details. 

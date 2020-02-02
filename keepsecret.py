@@ -75,7 +75,7 @@ def new_pw(shadow, secret_file):
 
 def get_help():
     secret_help = """
-usage:
+Usage:
 
 keepsecret [-n][--new] target_file
 	set new shadow password and encrypt target_file.
